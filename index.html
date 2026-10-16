@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEN OPT — Оптовий інтернет-магазин в Україні</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Гарантований коректний друк накладних та PDF з великими картинками */
+        @media print {
+            body { background: white !important; }
+            header, section, footer, .no-print, #ordersModal, #productModal, #cartModal, #productDetailModal, #orderAddProductCatalogModal {
+                display: none !important;
+            }
+            #orderDetailModal {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                background: white !important;
+                display: block !important;
+                visibility: visible !important;
+                z-index: 99999 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            #orderDetailModal > div {
+                max-width: 100% !important;
+                max-height: none !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+            #printableOrderDetail {
+                display: block !important;
+                visibility: visible !important;
+                width: 100% !important;
+                background: white !important;
+            }
+            img {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                max-width: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Шапка сайту -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Потрійний клік по логотипу для входу персоналу -->
+            <div class="flex items-center space-x-3 cursor-pointer select-none" onclick="handleLogoClick()" title="Натисніть 3 рази для входу персоналу">
+                <div class="bg-gradient-to-tr from-amber-500 to-yellow-400 p-2.5 rounded-xl text-slate-900 font-black text-xl shadow-lg">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <div>
+                    <span class="text-2xl font-black tracking-wider bg-gradient-to-r from-amber-400 to-yellow-200 bg-clip-text text-transparent">DEN OPT</span>
+                    <p class="text-xs text-slate-400 font-medium">Оптовий інтернет-магазин</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div id="staffMenu" class="hidden flex items-center space-x-2">
+                    <button onclick="openOrdersModal()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span class="hidden md:inline">Замовлення</span>
+                    </button>
+                    <button onclick="openClientsModal()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-users"></i>
+                        <span class="hidden md:inline">Клієнти</span>
+                    </button>
+                    <button id="saveCodeBtn" onclick="saveSourceCode()" class="hidden bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shadow-sm">
+                        <i class="fa-solid fa-download"></i>
+                        <span class="hidden md:inline">Сохранить код</span>
+                    </button>
+                </div>
+
+                <div id="authHeaderSection">
+                    <div id="loggedUserBadge" class="hidden flex items-center space-x-2 bg-slate-800 px-3 py-2 rounded-xl border border-slate-700 text-xs">
+                        <i class="fa-solid fa-user-shield text-amber-400"></i>
+                        <span id="roleLabelName" class="font-bold text-white"></span>
+                        <button onclick="logout()" class="text-rose-400 hover:text-rose-300 ml-2 font-bold" title="Вийти"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    </div>
+                </div>
+
+                <button onclick="openCartModal()" class="relative bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-sm transition-all shadow-md flex items-center space-x-2">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="hidden sm:inline">Кошик</span>
+                    <span id="cartBadge" class="absolute -top-2 -right-2 bg-rose-600 text-white text-[11px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-sm hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Головний банер -->
+    <section class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white py-10 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl">
+                <span class="bg-amber-500/20 text-amber-400 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/30 uppercase tracking-widest inline-block mb-3">Оптом від виробника</span>
+                <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight mb-2">Одяг, аксесуари та побутова техніка оптом</h1>
+                <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">Прямі поставки жіночого та чоловічого одягу, стильних аксесуарів та дрібної побутової техніки за найкращими цінами в Україні.</p>
+            </div>
+
+            <div class="flex items-center space-x-2 overflow-x-auto pb-2 pt-6 scrollbar-none" id="categoriesContainer">
+                <button onclick="setCategory('Усі')" class="category-btn bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow-md transition-all">Усі товари</button>
+                <button onclick="setCategory('Жіночі речі')" class="category-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all border border-slate-700">Жіночі речі</button>
+                <button onclick="setCategory('Чоловічі речі')" class="category-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all border border-slate-700">Чоловічі речі</button>
+                <button onclick="setCategory('Дрібна побутова техніка')" class="category-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all border border-slate-700">Побутова техніка</button>
+                <button onclick="setCategory('Аксесуари')" class="category-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all border border-slate-700">Аксесуари</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Основний контент -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h2 id="currentCategoryTitle" class="text-xl font-bold text-slate-900">Каталог товарів</h2>
+                <p id="productCount" class="text-xs text-slate-500">Знайдено: 0 товарів</p>
+            </div>
+
+            <div class="flex items-center space-x-3 w-full sm:w-auto">
+                <div id="adminActionBtnContainer" class="hidden">
+                    <button onclick="openProductModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md flex items-center space-x-2 w-full sm:w-auto justify-center">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                        <span>Додати товар</span>
+                    </button>
+                </div>
+
+                <div class="relative flex-grow sm:w-64">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
+                    <input type="text" id="searchInput" oninput="filterProducts()" placeholder="Пошук товарів..." class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs">
+                </div>
+            </div>
+        </div>
+
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+        <div id="emptyState" class="hidden py-16 text-center">
+            <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800 mb-1">Товарів не знайдено</h3>
+            <p class="text-xs text-slate-500">Спробуйте змінити пошуковий запит або категорію.</p>
+        </div>
+    </main>
+
+    <!-- Модальне вікно ДЕТАЛЬНОЇ СТОРІНКИ ТОВАРУ -->
+    <div id="productDetailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 relative p-6">
+            <button onclick="closeProductDetailModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center z-10 transition-all">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+            <div id="productDetailContent" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно вибору товару для додавання в замовлення (високий пріоритет z-[70]) -->
+    <div id="orderAddProductCatalogModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[70] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-100 p-6 flex flex-col">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200 mb-4 sticky top-0 bg-white z-10">
+                <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-boxes-stacked text-amber-500"></i>
+                    <span>Оберіть товар для додавання у замовлення</span>
+                </h3>
+                <button onclick="closeOrderAddProductCatalogModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="mb-4">
+                <input type="text" id="catalogSearchInOrder" oninput="renderCatalogForOrder()" placeholder="Пошук у каталозі за назвою чи постачальником..." class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-amber-500">
+            </div>
+
+            <div id="catalogListForOrder" class="divide-y divide-slate-100 overflow-y-auto space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно списку замовлень -->
+    <div id="ordersModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 p-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-clipboard-list text-amber-500"></i>
+                    <span>Управління замовленнями</span>
+                </h3>
+                <button onclick="closeOrdersModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div id="ordersListContainer" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно ДЕТАЛЬНОГО ПЕРЕГЛЯДУ ТА ДРУКУ ЗАМОВЛЕННЯ -->
+    <div id="orderDetailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 p-6 relative">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200 mb-4 no-print">
+                <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-file-invoice text-amber-500"></i>
+                    <span>Накладна замовлення</span>
+                </h3>
+                <div class="flex items-center space-x-2">
+                    <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs shadow-md transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Друк / PDF</span>
+                    </button>
+                    <button onclick="closeOrderDetailModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="printableOrderDetail"></div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно клієнтів -->
+    <div id="clientsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 mb-4 gap-3">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-users text-amber-500"></i>
+                    <span>База та історія клієнтів</span>
+                </h3>
+                <button onclick="closeClientsModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center self-end sm:self-auto">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <span class="font-bold text-slate-700"><i class="fa-solid fa-calendar-days text-amber-500 mr-1.5"></i> Фільтр історії за датами:</span>
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <input type="date" id="clientFilterFrom" onchange="renderClients()" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs">
+                    <span class="text-slate-400">—</span>
+                    <input type="date" id="clientFilterTo" onchange="renderClients()" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs">
+                    <button onclick="clearClientDateFilter()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded-xl font-bold">Скинути</button>
+                </div>
+            </div>
+
+            <div id="clientsListContainer" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно Додавання/Редагування товару -->
+    <div id="productModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                <h3 id="productModalTitle" class="text-lg font-bold text-slate-900">Додати новий товар</h3>
+                <button onclick="closeProductModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <form id="productForm" onsubmit="saveProduct(event)" class="p-6 space-y-4">
+                <input type="hidden" id="productId">
+
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                    <label class="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1 text-amber-600"></i> Автоматичне розпізнавання ШІ з тексту
+                    </label>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <textarea id="aiRawText" rows="3" placeholder="Вставте опис постачальника..." class="w-full px-3 py-2 border border-amber-300 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                        <button type="button" onclick="parseWithAI()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs whitespace-nowrap flex items-center justify-center">
+                            <i class="fa-solid fa-bolt mr-1"></i> Розпізнати
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        <i class="fa-solid fa-truck-field mr-1 text-amber-500"></i> Постачальник товару (видно лише персоналу)
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <select id="pSupplierSelect" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-white focus:ring-2 focus:ring-amber-500"></select>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="newSupplierInput" placeholder="Новий постачальник (напр: Саша)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white focus:ring-2 focus:ring-amber-500">
+                            <button type="button" onclick="addNewSupplier()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-2 rounded-xl text-xs whitespace-nowrap">+ Додати</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Назва товару</label>
+                        <input type="text" id="pTitle" placeholder="Жіночі зимові шапки з ангори" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Категорія</label>
+                        <select id="pCategory" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white">
+                            <option value="Жіночі речі">Жіночі речі</option>
+                            <option value="Чоловічі речі">Чоловічі речі</option>
+                            <option value="Дрібна побутова техніка">Дрібна побутова техніка</option>
+                            <option value="Аксесуари">Аксесуари</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Опис товару</label>
+                    <textarea id="pDescription" rows="3" placeholder="Детальний опис товару..." required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Ціна за 1 шт. (грн)</label>
+                        <input type="number" id="pPricePiece" step="0.01" placeholder="150" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Штук у ростовці / пачці</label>
+                        <input type="number" id="pPiecesPerPack" placeholder="10" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Ціна за ростовку / пачку (грн)</label>
+                        <input type="number" id="pPricePack" step="0.01" placeholder="1500" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        <i class="fa-solid fa-palette mr-1 text-amber-500"></i> Кольори у наявності
+                    </label>
+                    <div class="relative mb-3">
+                        <div class="flex gap-2">
+                            <input type="text" id="newColorInput" oninput="handleColorAutocomplete(this.value)" autocomplete="off" placeholder="Введіть 1-2 букви..." class="w-full px-3 py-1.5 border border-slate-200 rounded-xl text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500" onkeydown="if(event.key==='Enter'){event.preventDefault();addColor();}">
+                            <button type="button" onclick="addColor()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition-all whitespace-nowrap">+ Додати</button>
+                        </div>
+                        <div id="colorSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 max-h-40 overflow-y-auto hidden divide-y divide-slate-100"></div>
+                    </div>
+                    <div id="colorsTagsContainer" class="flex flex-wrap gap-2 min-h-[32px] p-2 bg-white rounded-xl border border-slate-200"></div>
+                </div>
+
+                <!-- ТАБЛИЦЯ РОЗМІРІВ -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        <i class="fa-solid fa-ruler-horizontal mr-1 text-amber-500"></i> Оберіть розміри в наявності
+                    </label>
+                    <div>
+                        <span class="text-[11px] font-bold text-slate-500 block mb-1">Одяг / Головні убори / Батал:</span>
+                        <div id="sizesLetterGrid" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold text-slate-500 block mb-1">Цифрові розміри:</span>
+                        <div id="sizesNumericGrid" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold text-slate-500 block mb-1">Взуття:</span>
+                        <div id="sizesShoesGrid" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Фотографії (до 10 шт.)</label>
+                    <input type="file" id="pImageFiles" multiple accept="image/*" onchange="handleImageUpload(event)" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 mb-2 cursor-pointer">
+                    <div id="imagePreviewsContainer" class="grid grid-cols-5 gap-2 mt-2"></div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeProductModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-5 py-2.5 rounded-xl text-sm">Скасувати</button>
+                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-sm shadow-md">Зберегти товар</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальне вікно кошика -->
+    <div id="cartModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-cart-shopping text-amber-500"></i>
+                    <span>Кошик ростовок</span>
+                </h3>
+                <button onclick="closeCartModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-6 flex-grow overflow-y-auto space-y-4">
+                <div id="cartItemsList" class="divide-y divide-slate-100"></div>
+
+                <div id="cartEmptyState" class="py-12 text-center">
+                    <div class="w-14 h-14 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                    </div>
+                    <p class="text-sm font-semibold text-slate-700">Кошик порожній</p>
+                </div>
+            </div>
+
+            <div id="cartFooter" class="p-6 border-t border-slate-100 bg-slate-50 space-y-4">
+                <div class="flex items-center justify-between text-base font-bold text-slate-900">
+                    <span>Разом до сплати:</span>
+                    <span id="cartTotalPrice" class="text-amber-600 text-xl">0 грн</span>
+                </div>
+
+                <div class="space-y-3">
+                    <p class="text-xs font-bold text-slate-700 uppercase tracking-wider">Дані одержувача та доставка</p>
+                    <input type="text" id="orderLastName" placeholder="Прізвище одержувача" class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-amber-500">
+                    <input type="text" id="orderFirstName" placeholder="Ім'я одержувача" class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-amber-500">
+                    <input type="text" id="orderMiddleName" placeholder="По батькові одержувача" class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-amber-500">
+                    <input type="tel" id="orderPhone" placeholder="Номер телефону (+380...)" class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-amber-500">
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="border border-slate-200 rounded-xl p-2.5 flex items-center space-x-2 bg-white cursor-pointer hover:border-amber-500">
+                            <input type="radio" name="deliveryService" value="Нова Пошта" checked class="text-amber-500 focus:ring-amber-500">
+                            <span class="text-xs font-semibold">Нова Пошта</span>
+                        </label>
+                        <label class="border border-slate-200 rounded-xl p-2.5 flex items-center space-x-2 bg-white cursor-pointer hover:border-amber-500">
+                            <input type="radio" name="deliveryService" value="Укрпошта" class="text-amber-500 focus:ring-amber-500">
+                            <span class="text-xs font-semibold">Укрпошта</span>
+                        </label>
+                    </div>
+
+                    <input type="text" id="orderAddress" placeholder="Місто та номер відділення / індекс" class="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-amber-500">
+                </div>
+
+                <button onclick="checkoutOrder()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-sm shadow-md flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-check text-amber-400"></i>
+                    <span>Підтвердити замовлення</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно входу персоналу -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl border border-slate-100 p-6 relative">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+            
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-lg font-bold">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Вхід для персоналу</h3>
+                <p class="text-xs text-slate-500 mt-1">Введіть пін-код доступу</p>
+            </div>
+
+            <div class="space-y-3">
+                <input type="password" id="staffPassword" placeholder="Введіть пін-код..." class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-amber-500 text-center font-bold tracking-widest text-lg">
+                
+                <button onclick="loginAs('manager')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 border border-slate-200">
+                    <i class="fa-solid fa-user-tie text-blue-600"></i>
+                    <span>Увійти як Менеджер</span>
+                </button>
+                <button onclick="loginAs('superadmin')" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2 shadow-md">
+                    <i class="fa-solid fa-shield-halved text-slate-950"></i>
+                    <span>Увійти як Супер-адмін</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-500 p-2 rounded-lg text-slate-950 font-bold text-sm">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <span class="text-lg font-bold text-white tracking-wide">DEN OPT</span>
+            </div>
+            <p class="text-sm text-center">© 2026 DEN OPT. Усі права захищені. Оптовий інтернет-магазин в Україні.</p>
+            <div class="flex space-x-4 text-sm">
+                <span><i class="fa-solid fa-phone text-amber-400 mr-1.5"></i> +38 (063) 123-45-67</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Скрипти додатку -->
+    <script>
+        const COLOR_DATABASE = [
+            "Різнокольорові", "Антрацит", "Мокко", "Шоколад", "Джинсовий", "Чорний", "Білий", "Бежевий",
+            "Сірий", "Хакі", "Темно-синій", "Бордовий", "Пудра", "Малиновий", "Червоний",
+            "Оливковий", "М'ятний", "Екрю", "Графіт", "Електрик", "Капучино", "Світло-сірий",
+            "Бузковий", "Лаванда", "Жовтий", "Зелений", "Коричневий", "Сріблястий", "Золотистий"
+        ];
+
+        const SIZES_LETTER = ["XS", "S", "M", "L", "XL", "XXL", "3XL", "Напівбатал", "Батал", "Універсальний"];
+        const SIZES_NUMERIC = ["36", "38", "40", "42", "44", "46", "48", "50", "52", "54", "56", "58"];
+        const SIZES_SHOES = ["35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45"];
+
+        let suppliers = JSON.parse(localStorage.getItem('denopt_suppliers')) || ["Саша 7км", "Марина Опт", "Турція Прямі", "Китай Склад"];
+        
+        let products = JSON.parse(localStorage.getItem('denopt_products'));
+        if (!products || !Array.isArray(products) || products.length === 0) {
+            products = [
+                {
+                    id: 1,
+                    title: "Жіночий зимовий костюм на флісі оверсайз",
+                    category: "Жіночі речі",
+                    supplier: "Саша 7км",
+                    description: "Теплий та м'який трикотажний костюм. Худі з капюшоном та вільні штани.",
+                    pricePiece: 650,
+                    piecesPerPack: 4,
+                    pricePack: 2600,
+                    colors: ["Мокко", "Чорний", "Пудра"],
+                    sizes: ["S", "M", "L", "XL", "Напівбатал"],
+                    images: ["https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80"]
+                },
+                {
+                    id: 2,
+                    title: "Чоловіча демісезонна куртка бомбер",
+                    category: "Чоловічі речі",
+                    supplier: "Турція Прямі",
+                    description: "Стильна куртка на якісному утеплювачі. Вітрозахисна тканина.",
+                    pricePiece: 1100,
+                    piecesPerPack: 5,
+                    pricePack: 5500,
+                    colors: ["Антрацит", "Чорний"],
+                    sizes: ["M", "L", "XL", "XXL", "Батал"],
+                    images: ["https://images.unsplash.com/photo-1495105787522-5334e3ffa0ef?auto=format&fit=crop&w=600&q=80"]
+                },
+                {
+                    id: 3,
+                    title: "Бездротовий кухонний подрібнювач блендер",
+                    category: "Дрібна побутова техніка",
+                    supplier: "Китай Склад",
+                    description: "Компактний електричний подрібнювач для овочів, м'яса та горіхів з акумулятором.",
+                    pricePiece: 280,
+                    piecesPerPack: 10,
+                    pricePack: 2800,
+                    colors: ["Білий", "Зелений"],
+                    sizes: ["Універсальний"],
+                    images: ["https://images.unsplash.com/photo-1585515320310-259814833e62?auto=format&fit=crop&w=600&q=80"]
+                },
+                {
+                    id: 4,
+                    title: "Шкіряний жіночий гаманець клатч",
+                    category: "Аксесуари",
+                    supplier: "Марина Опт",
+                    description: "Елегантний аксесуар з міцної еко-шкіри з безліччю відділень.",
+                    pricePiece: 190,
+                    piecesPerPack: 6,
+                    pricePack: 1140,
+                    colors: ["Червоний", "Шоколад", "Чорний"],
+                    sizes: ["Універсальний"],
+                    images: ["https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=600&q=80"]
+                }
+            ];
+            localStorage.setItem('denopt_products', JSON.stringify(products));
+        }
+
+        let cart = JSON.parse(localStorage.getItem('denopt_cart')) || [];
+        let orders = JSON.parse(localStorage.getItem('denopt_orders')) || [];
+        let currentUser = localStorage.getItem('denopt_user') || null;
+        let currentCategory = 'Усі';
+        let activeColors = [];
+        let activeSizes = [];
+        let uploadedImages = [];
+        let productQuantities = {};
+        let currentEditingOrderId = null;
+
+        // Потрійний клік на логотип для персоналу
+        let logoClicks = 0;
+        let logoTimer = null;
+        function handleLogoClick() {
+            logoClicks++;
+            if (logoClicks === 3) {
+                clearTimeout(logoTimer);
+                logoClicks = 0;
+                openLoginModal();
+                return;
+            }
+            clearTimeout(logoTimer);
+            logoTimer = setTimeout(() => {
+                if (logoClicks === 1) {
+                    resetFilters();
+                }
+                logoClicks = 0;
+            }, 400);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateAuthUI();
+            renderCategories();
+            renderProducts();
+            updateCartBadge();
+            renderSupplierSelect();
+            renderSizeGrids();
+        });
+
+        function updateAuthUI() {
+            const staffMenu = document.getElementById('staffMenu');
+            const loggedBadge = document.getElementById('loggedUserBadge');
+            const roleLabel = document.getElementById('roleLabelName');
+            const adminContainer = document.getElementById('adminActionBtnContainer');
+            const saveCodeBtn = document.getElementById('saveCodeBtn');
+
+            if (currentUser) {
+                staffMenu.classList.remove('hidden');
+                loggedBadge.classList.remove('hidden');
+                roleLabel.textContent = currentUser === 'superadmin' ? 'Супер-адмін' : 'Менеджер';
+                
+                if (currentUser === 'superadmin') {
+                    adminContainer.classList.remove('hidden');
+                    saveCodeBtn.classList.remove('hidden');
+                } else {
+                    adminContainer.classList.add('hidden');
+                    saveCodeBtn.classList.add('hidden');
+                }
+            } else {
+                staffMenu.classList.add('hidden');
+                loggedBadge.classList.add('hidden');
+                adminContainer.classList.add('hidden');
+                saveCodeBtn.classList.add('hidden');
+            }
+        }
+
+        function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
+        function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
+
+        function loginAs(role) {
+            const pass = document.getElementById('staffPassword').value.trim();
+            if (role === 'manager' && pass === '1234') {
+                currentUser = 'manager';
+                localStorage.setItem('denopt_user', 'manager');
+                closeLoginModal();
+                updateAuthUI();
+                renderProducts();
+                document.getElementById('staffPassword').value = '';
+            } else if (role === 'superadmin' && pass === '1414') {
+                currentUser = 'superadmin';
+                localStorage.setItem('denopt_user', 'superadmin');
+                closeLoginModal();
+                updateAuthUI();
+                renderProducts();
+                document.getElementById('staffPassword').value = '';
+            } else {
+                alert('Невірний пін-код для обраної ролі!');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('denopt_user');
+            updateAuthUI();
+            renderProducts();
+        }
+
+        function saveSourceCode() {
+            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'den_opt_store.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function setCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.textContent.includes(cat) || (cat === 'Усі' && btn.textContent.includes('Усі'))) {
+                    btn.className = "category-btn bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs whitespace-nowrap shadow-md transition-all";
+                } else {
+                    btn.className = "category-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all border border-slate-700";
+                }
+            });
+            document.getElementById('currentCategoryTitle').textContent = cat === 'Усі' ? 'Каталог товарів' : cat;
+            renderProducts();
+        }
+
+        function resetFilters() {
+            setCategory('Усі');
+            document.getElementById('searchInput').value = '';
+            renderProducts();
+        }
+
+        function changeCardQuantity(productId, delta) {
+            if (!productQuantities[productId]) productQuantities[productId] = 1;
+            productQuantities[productId] += delta;
+            if (productQuantities[productId] < 1) productQuantities[productId] = 1;
+            
+            const qtySpan = document.getElementById(`card-qty-${productId}`);
+            if (qtySpan) qtySpan.textContent = productQuantities[productId];
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = products.filter(p => {
+                const matchCat = currentCategory === 'Усі' || p.category === currentCategory;
+                const matchSearch = p.title.toLowerCase().includes(search) || p.description.toLowerCase().includes(search);
+                return matchCat && matchSearch;
+            });
+
+            document.getElementById('productCount').textContent = `Знайдено: ${filtered.length} товарів`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = filtered.map(p => {
+                if (!productQuantities[p.id]) productQuantities[p.id] = 1;
+                return `
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group">
+                    <div class="relative h-48 bg-slate-100 cursor-pointer overflow-hidden" onclick="openProductDetail(${p.id})">
+                        <img src="${p.images[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <span class="absolute top-2.5 left-2.5 bg-slate-900/80 backdrop-blur-xs text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-lg">${p.category}</span>
+                    </div>
+
+                    <div class="p-4 flex flex-col flex-grow justify-between space-y-3">
+                        <div>
+                            <h3 onclick="openProductDetail(${p.id})" class="font-bold text-slate-900 text-sm line-clamp-2 hover:text-amber-600 cursor-pointer mb-1">${p.title}</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2">${p.description}</p>
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-slate-100">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-500">За 1 шт:</span>
+                                <span class="font-bold text-slate-800">${p.pricePiece} грн</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-500">Ростовка (${p.piecesPerPack} шт):</span>
+                                <span class="font-extrabold text-amber-600 text-sm">${p.pricePack} грн</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-2">
+                            <div class="flex items-center justify-between bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+                                <span class="text-[11px] font-bold text-slate-600 ml-1">Ростовок:</span>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="changeCardQuantity(${p.id}, -1)" class="w-7 h-7 bg-white hover:bg-slate-200 text-slate-800 font-black rounded-lg border border-slate-200 shadow-xs flex items-center justify-center">-</button>
+                                    <span id="card-qty-${p.id}" class="font-black text-xs text-slate-900 w-5 text-center">${productQuantities[p.id]}</span>
+                                    <button onclick="changeCardQuantity(${p.id}, 1)" class="w-7 h-7 bg-white hover:bg-slate-200 text-slate-800 font-black rounded-lg border border-slate-200 shadow-xs flex items-center justify-center">+</button>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button onclick="addToCartWithQty(${p.id})" class="flex-grow bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 shadow-sm">
+                                    <i class="fa-solid fa-cart-plus text-amber-400"></i>
+                                    <span>В кошик</span>
+                                </button>
+                                ${currentUser === 'superadmin' ? `
+                                    <button onclick="openProductModal(${p.id})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2.5 rounded-xl text-xs" title="Редагувати">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="deleteProduct(${p.id})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 p-2.5 rounded-xl text-xs" title="Видалити">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;}).join('');
+        }
+
+        function addToCartWithQty(productId) {
+            const qty = productQuantities[productId] || 1;
+            addToCartSilently(productId, qty);
+        }
+
+        function openProductDetail(id) {
+            const p = products.find(item => item.id === id);
+            if (!p) return;
+
+            if (!productQuantities[p.id]) productQuantities[p.id] = 1;
+
+            const content = document.getElementById('productDetailContent');
+            content.innerHTML = `
+                <div class="space-y-3">
+                    <div class="h-80 bg-slate-100 rounded-2xl overflow-hidden shadow-inner">
+                        <img id="mainDetailImage" src="${p.images[0]}" class="w-full h-full object-cover">
+                    </div>
+                    ${p.images.length > 1 ? `
+                        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                            ${p.images.map((img) => `
+                                <img src="${img}" onclick="document.getElementById('mainDetailImage').src='${img}'" class="w-16 h-16 rounded-xl object-cover cursor-pointer border-2 border-slate-200 hover:border-amber-500 transition-all">
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-1 rounded-lg">${p.category}</span>
+                        </div>
+                        <h2 class="text-xl font-extrabold text-slate-900 mb-2">${p.title}</h2>
+                        <p class="text-xs text-slate-600 leading-relaxed mb-4">${p.description}</p>
+
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 mb-4">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-500">Ціна за 1 одиницю:</span>
+                                <span class="font-bold text-slate-800">${p.pricePiece} грн</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-500">Кількість у пачці / ростовці:</span>
+                                <span class="font-bold text-slate-800">${p.piecesPerPack} шт.</span>
+                            </div>
+                            <div class="flex justify-between text-sm pt-2 border-t border-slate-200 font-extrabold text-amber-600">
+                                <span>Ціна ростовки:</span>
+                                <span>${p.pricePack} грн</span>
+                            </div>
+                        </div>
+
+                        ${p.colors && p.colors.length > 0 ? `
+                            <div class="mb-3">
+                                <span class="text-xs font-bold text-slate-700 block mb-1.5">Доступні кольори:</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${p.colors.map(c => `<span class="bg-white border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium">${c}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${p.sizes && p.sizes.length > 0 ? `
+                            <div class="mb-4">
+                                <span class="text-xs font-bold text-slate-700 block mb-1.5">Доступні розміри:</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${p.sizes.map(s => `<span class="bg-slate-900 text-white px-2.5 py-1 rounded-lg text-xs font-bold">${s}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        <div class="flex items-center justify-between bg-slate-50 p-2 rounded-2xl border border-slate-200">
+                            <span class="text-xs font-bold text-slate-700 ml-2">Кількість ростовок:</span>
+                            <div class="flex items-center space-x-3">
+                                <button onclick="changeCardQuantity(${p.id}, -1); document.getElementById('detail-qty-${p.id}').textContent = productQuantities[p.id];" class="w-8 h-8 bg-white hover:bg-slate-200 text-slate-800 font-black rounded-xl border border-slate-200 shadow-xs flex items-center justify-center">-</button>
+                                <span id="detail-qty-${p.id}" class="font-black text-sm text-slate-900 w-6 text-center">${productQuantities[p.id]}</span>
+                                <button onclick="changeCardQuantity(${p.id}, 1); document.getElementById('detail-qty-${p.id}').textContent = productQuantities[p.id];" class="w-8 h-8 bg-white hover:bg-slate-200 text-slate-800 font-black rounded-xl border border-slate-200 shadow-xs flex items-center justify-center">+</button>
+                            </div>
+                        </div>
+
+                        <button onclick="addToCartSilently(${p.id}, productQuantities[${p.id}]); closeProductDetailModal();" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3.5 rounded-2xl text-sm shadow-md transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>Додати в кошик</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('productDetailModal').classList.remove('hidden');
+        }
+
+        function closeProductDetailModal() {
+            document.getElementById('productDetailModal').classList.add('hidden');
+        }
+
+        function addToCartSilently(productId, count = 1) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.quantity += count;
+            } else {
+                cart.push({ ...product, quantity: count });
+            }
+
+            saveCart();
+            updateCartBadge();
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartBadge');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            if (totalItems > 0) {
+                badge.textContent = totalItems;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem('denopt_cart', JSON.stringify(cart));
+        }
+
+        function openCartModal() {
+            renderCartItems();
+            document.getElementById('cartModal').classList.remove('hidden');
+        }
+
+        function closeCartModal() {
+            document.getElementById('cartModal').classList.add('hidden');
+        }
+
+        function renderCartItems() {
+            const list = document.getElementById('cartItemsList');
+            const emptyState = document.getElementById('cartEmptyState');
+            const footer = document.getElementById('cartFooter');
+
+            if (cart.length === 0) {
+                list.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                footer.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            footer.classList.remove('hidden');
+
+            let totalPrice = 0;
+
+            list.innerHTML = cart.map((item, index) => {
+                const itemTotal = item.pricePack * item.quantity;
+                totalPrice += itemTotal;
+                return `
+                    <div class="py-3 flex items-center justify-between gap-3">
+                        <img src="${item.images[0]}" class="w-14 h-14 rounded-xl object-cover bg-slate-100 flex-shrink-0 border border-slate-200">
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-slate-900 text-xs line-clamp-1">${item.title}</h4>
+                            <p class="text-[11px] text-slate-500">${item.piecesPerPack} шт. у пачці • ${item.pricePack} грн/пачка</p>
+                            <div class="flex items-center space-x-2 mt-1.5">
+                                <button onclick="changeQuantity(${index}, -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">-</button>
+                                <span class="text-xs font-bold text-slate-800">${item.quantity} ростовка(-и)</span>
+                                <button onclick="changeQuantity(${index}, 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">+</button>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-extrabold text-amber-600 text-xs block">${itemTotal} грн</span>
+                            <button onclick="removeFromCart(${index})" class="text-rose-500 hover:text-rose-700 text-xs mt-1"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cartTotalPrice').textContent = `${totalPrice} грн`;
+        }
+
+        function changeQuantity(index, delta) {
+            cart[index].quantity += delta;
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+            saveCart();
+            renderCartItems();
+            updateCartBadge();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            saveCart();
+            renderCartItems();
+            updateCartBadge();
+        }
+
+        function checkoutOrder() {
+            const lastName = document.getElementById('orderLastName').value.trim();
+            const firstName = document.getElementById('orderFirstName').value.trim();
+            const middleName = document.getElementById('orderMiddleName').value.trim();
+            const phone = document.getElementById('orderPhone').value.trim();
+            const address = document.getElementById('orderAddress').value.trim();
+            const delivery = document.querySelector('input[name="deliveryService"]:checked').value;
+
+            if (!lastName || !firstName || !phone || !address) {
+                alert('Будь ласка, заповніть усі обов’язкові поля одержувача та адресу доставки!');
+                return;
+            }
+
+            const totalPrice = cart.reduce((sum, item) => sum + (item.pricePack * item.quantity), 0);
+
+            const newOrder = {
+                id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
+                date: new Date().toISOString(),
+                client: { lastName, firstName, middleName, phone },
+                delivery: { service: delivery, address },
+                items: [...cart],
+                total: totalPrice,
+                status: 'Нове'
+            };
+
+            orders.unshift(newOrder);
+            localStorage.setItem('denopt_orders', JSON.stringify(orders));
+
+            cart = [];
+            saveCart();
+            updateCartBadge();
+            closeCartModal();
+
+            alert(`Замовлення #${newOrder.id} успішно оформлено! Очікуйте дзвінка менеджера.`);
+        }
+
+        function openOrdersModal() {
+            renderOrdersList();
+            document.getElementById('ordersModal').classList.remove('hidden');
+        }
+
+        function closeOrdersModal() {
+            document.getElementById('ordersModal').classList.add('hidden');
+        }
+
+        function renderOrdersList() {
+            const container = document.getElementById('ordersListContainer');
+            if (orders.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">Ще немає жодного замовлення.</p>`;
+                return;
+            }
+
+            container.innerHTML = orders.map(ord => `
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-black text-slate-900 text-sm">${ord.id}</span>
+                            <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md">${ord.status}</span>
+                            <span class="text-slate-400 text-xs">${new Date(ord.date).toLocaleString()}</span>
+                        </div>
+                        <p class="text-xs font-bold text-slate-800">${ord.client.lastName} ${ord.client.firstName} ${ord.client.middleName || ''} (${ord.client.phone})</p>
+                        <p class="text-xs text-slate-500">${ord.delivery.service}: ${ord.delivery.address}</p>
+                    </div>
+
+                    <div class="flex items-center space-x-2 self-end sm:self-center">
+                        <span class="font-extrabold text-amber-600 text-sm mr-2">${ord.total} грн</span>
+                        <button onclick="openOrderDetail('${ord.id}', false)" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center space-x-1">
+                            <i class="fa-solid fa-file-invoice text-amber-400"></i>
+                            <span>Накладна</span>
+                        </button>
+                        ${currentUser ? `
+                            <button onclick="openOrderDetail('${ord.id}', true)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center space-x-1" title="Редагувати склад">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>Редагувати</span>
+                            </button>
+                        ` : ''}
+                        <button onclick="deleteOrder('${ord.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-xs"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Вікно накладної та редагування складників замовлення
+        function openOrderDetail(orderId, editMode = false) {
+            orders = JSON.parse(localStorage.getItem('denopt_orders')) || [];
+            const ord = orders.find(o => String(o.id) === String(orderId));
+            if (!ord) return;
+
+            currentEditingOrderId = orderId;
+            const printable = document.getElementById('printableOrderDetail');
+
+            if (editMode && currentUser) {
+                printable.innerHTML = `
+                    <div class="p-6 bg-white text-slate-800 space-y-6">
+                        <div class="flex justify-between items-start border-b border-slate-200 pb-4 no-print">
+                            <div>
+                                <h2 class="text-xl font-black text-slate-900">Редагування замовлення #${ord.id}</h2>
+                                <p class="text-xs text-slate-500">Зміна товарів, ростовок та складу замовлення</p>
+                            </div>
+                            <button onclick="openOrderDetail('${ord.id}', false)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold">Готово / Перегляд</button>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-bold text-slate-700 uppercase">Товари у складі замовлення:</h4>
+                                <button onclick="openOrderAddProductCatalogModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs shadow-xs flex items-center space-x-1">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>+ Додати товар з каталогу</span>
+                                </button>
+                            </div>
+
+                            <div class="divide-y divide-slate-100 border border-slate-200 rounded-2xl p-3 bg-slate-50 space-y-2">
+                                ${ord.items.map((item, idx) => `
+                                    <div class="py-2 flex items-center justify-between gap-3 text-xs bg-white p-2.5 rounded-xl border border-slate-200">
+                                        <div class="flex items-center space-x-3">
+                                            <img src="${item.images[0]}" class="w-16 h-16 rounded-xl object-cover bg-slate-100 flex-shrink-0 border border-slate-200">
+                                            <div>
+                                                <p class="font-bold text-slate-900">${item.title}</p>
+                                                <p class="text-[11px] text-amber-700 font-bold"><i class="fa-solid fa-truck-field mr-1"></i> Постачальник: ${item.supplier || 'Не вказано'}</p>
+                                                <p class="text-[11px] text-slate-500">${item.piecesPerPack} шт. у пачці • ${item.pricePack} грн/пачка</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-lg">
+                                                <button onclick="updateOrderItemQuantity('${ord.id}',${idx}, -1)" class="w-6 h-6 bg-white text-slate-800 font-black rounded-md border border-slate-200 flex items-center justify-center">-</button>
+                                                <span class="font-bold text-xs text-slate-900 px-1">${item.quantity} рост.</span>
+                                                <button onclick="updateOrderItemQuantity('${ord.id}',${idx}, 1)" class="w-6 h-6 bg-white text-slate-800 font-black rounded-md border border-slate-200 flex items-center justify-center">+</button>
+                                            </div>
+                                            <span class="font-extrabold text-amber-600 w-16 text-right">${item.pricePack * item.quantity} грн</span>
+                                            <button onclick="removeProductFromOrder('${ord.id}',${idx})" class="bg-rose-50 text-rose-600 hover:bg-rose-100 p-2 rounded-lg" title="Видалити товар"><i class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center border-t border-slate-200 pt-4">
+                            <span class="text-xs font-bold text-slate-700">Загальна сума замовлення: <span class="text-amber-600 text-lg font-extrabold">${ord.total} грн</span></span>
+                            <button onclick="openOrderDetail('${ord.id}', false)" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md">Зберегти та переглянути</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                printable.innerHTML = `
+                    <div class="p-6 bg-white text-slate-800 space-y-6">
+                        <div class="flex justify-between items-start border-b border-slate-200 pb-4">
+                            <div>
+                                <h2 class="text-xl font-black text-slate-900">DEN OPT — Видаткова накладна</h2>
+                                <p class="text-xs text-slate-500">Замовлення №${ord.id} від ${new Date(ord.date).toLocaleDateString()}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                ${currentUser ? `<button onclick="openOrderDetail('${ord.id}', true)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 py-2 rounded-xl text-xs font-bold no-print flex items-center space-x-1 shadow-sm"><i class="fa-solid fa-pen-to-square"></i><span>Редагувати замовлення</span></button>` : ''}
+                                <p class="text-xs font-bold text-slate-700">Статус: <span class="text-amber-600">${ord.status}</span></p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <div>
+                                <span class="font-bold text-slate-500 block mb-1">Одержувач:</span>
+                                <p class="font-extrabold text-slate-800">${ord.client.lastName} ${ord.client.firstName} ${ord.client.middleName || ''}</p>
+                                <p class="text-slate-600">${ord.client.phone}</p>
+                            </div>
+                            <div>
+                                <span class="font-bold text-slate-500 block mb-1">Доставка (${ord.delivery.service}):</span>
+                                <p class="font-bold text-slate-800">${ord.delivery.address}</p>
+                            </div>
+                        </div>
+
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-slate-400 font-bold uppercase">
+                                    <th class="py-2">Фото</th>
+                                    <th class="py-2">Товар</th>
+                                    ${currentUser ? `<th class="py-2">Постачальник</th>` : ''}
+                                    <th class="py-2 text-center">Ростовок</th>
+                                    <th class="py-2 text-right">Ціна ростовки</th>
+                                    <th class="py-2 text-right">Сума</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                ${ord.items.map(item => `
+                                    <tr>
+                                        <td class="py-3">
+                                            <img src="${item.images[0]}" class="rounded-xl object-cover bg-slate-100 border border-slate-200 shadow-sm" style="width: 80px; height: 80px; min-width: 80px;" alt="${item.title}">
+                                        </td>
+                                        <td class="py-3 font-semibold text-slate-800">${item.title} <span class="text-slate-400 font-normal block text-[10px]">(${item.piecesPerPack} шт. у пачці)</span></td>
+                                        ${currentUser ? `<td class="py-3 font-bold text-amber-700">${item.supplier || 'Не вказано'}</td>` : ''}
+                                        <td class="py-3 text-center font-bold">${item.quantity}</td>
+                                        <td class="py-3 text-right">${item.pricePack} грн</td>
+                                        <td class="py-3 text-right font-extrabold text-slate-900">${item.pricePack * item.quantity} грн</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+
+                        <div class="flex justify-end border-t border-slate-200 pt-4">
+                            <div class="text-right">
+                                <span class="text-xs text-slate-500 block">Разом до сплати:</span>
+                                <span class="text-xl font-black text-amber-600">${ord.total} грн</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('orderDetailModal').classList.remove('hidden');
+        }
+
+        function openOrderAddProductCatalogModal() {
+            renderCatalogForOrder();
+            document.getElementById('orderAddProductCatalogModal').classList.remove('hidden');
+        }
+
+        function closeOrderAddProductCatalogModal() {
+            document.getElementById('orderAddProductCatalogModal').classList.add('hidden');
+        }
+
+        function renderCatalogForOrder() {
+            const search = (document.getElementById('catalogSearchInOrder').value || '').toLowerCase();
+            const container = document.getElementById('catalogListForOrder');
+
+            products = JSON.parse(localStorage.getItem('denopt_products')) || [];
+            const filtered = products.filter(p => p.title.toLowerCase().includes(search) || (p.supplier && p.supplier.toLowerCase().includes(search)));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Товарів не знайдено.</p>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(p => `
+                <div class="py-2.5 flex items-center justify-between gap-3 text-xs hover:bg-slate-50 p-2 rounded-xl transition-all">
+                    <div class="flex items-center space-x-3">
+                        <img src="${p.images[0]}" class="w-12 h-12 rounded-lg object-cover bg-slate-100 flex-shrink-0 border border-slate-200">
+                        <div>
+                            <p class="font-bold text-slate-900">${p.title}</p>
+                            <p class="text-[11px] text-amber-700 font-bold"><i class="fa-solid fa-truck-field mr-1"></i> ${p.supplier}</p>
+                            <p class="text-[11px] text-slate-500">${p.piecesPerPack} шт/пачка • <span class="font-bold text-slate-800">${p.pricePack} грн</span></p>
+                        </div>
+                    </div>
+                    <button onclick="addItemToCurrentOrder(${p.id})" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-xs">
+                        + Додати 1 ростовку
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function addItemToCurrentOrder(productId) {
+            orders = JSON.parse(localStorage.getItem('denopt_orders')) || [];
+            products = JSON.parse(localStorage.getItem('denopt_products')) || [];
+
+            if (!currentEditingOrderId) return;
+            const ord = orders.find(o => String(o.id) === String(currentEditingOrderId));
+            if (!ord) return;
+
+            const prod = products.find(p => String(p.id) === String(productId));
+            if (!prod) return;
+
+            const existing = ord.items.find(item => String(item.id) === String(productId));
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                ord.items.push({ ...prod, quantity: 1 });
+            }
+
+            recalculateOrderTotal(ord);
+            localStorage.setItem('denopt_orders', JSON.stringify(orders));
+            closeOrderAddProductCatalogModal();
+            openOrderDetail(currentEditingOrderId, true);
+        }
+
+        function updateOrderItemQuantity(orderId, itemIndex, delta) {
+            orders = JSON.parse(localStorage.getItem('denopt_orders')) || [];
+            const ord = orders.find(o => String(o.id) === String(orderId));
+            if (!ord) return;
+
+            ord.items[itemIndex].quantity += delta;
+            if (ord.items[itemIndex].quantity <= 0) {
+                ord.items.splice(itemIndex, 1);
+            }
+            recalculateOrderTotal(ord);
+            localStorage.setItem('denopt_orders', JSON.stringify(orders));
+            openOrderDetail(orderId, true);
+        }
+
+        function removeProductFromOrder(orderId, itemIndex) {
+            orders = JSON.parse(localStorage.getItem('denopt_orders')) || [];
+            const ord = orders.find(o => String(o.id) === String(orderId));
+            if (!ord) return;
+            if (ord.items.length <= 1) {
+                alert('У замовленні має залишитися хоча б один товар!');
+                return;
+            }
+            ord.items.splice(itemIndex, 1);
+            recalculateOrderTotal(ord);
+            localStorage.setItem('denopt_orders', JSON.stringify(orders));
+            openOrderDetail(orderId, true);
+        }
+
+        function recalculateOrderTotal(ord) {
+            ord.total = ord.items.reduce((sum, item) => sum + (item.pricePack * item.quantity), 0);
+        }
+
+        function closeOrderDetailModal() {
+            document.getElementById('orderDetailModal').classList.add('hidden');
+            renderOrdersList();
+        }
+
+        function deleteOrder(id) {
+            if (confirm('Видалити це замовлення?')) {
+                orders = orders.filter(o => String(o.id) !== String(id));
+                localStorage.setItem('denopt_orders', JSON.stringify(orders));
+                renderOrdersList();
+            }
+        }
+
+        function openClientsModal() {
+            renderClients();
+            document.getElementById('clientsModal').classList.remove('hidden');
+        }
+
+        function closeClientsModal() {
+            document.getElementById('clientsModal').classList.add('hidden');
+        }
+
+        function clearClientDateFilter() {
+            document.getElementById('clientFilterFrom').value = '';
+            document.getElementById('clientFilterTo').value = '';
+            renderClients();
+        }
+
+        function renderClients() {
+            const container = document.getElementById('clientsListContainer');
+            const dateFrom = document.getElementById('clientFilterFrom').value;
+            const dateTo = document.getElementById('clientFilterTo').value;
+
+            let clientsMap = {};
+            orders.forEach(ord => {
+                const phone = ord.client.phone;
+                const ordDate = new Date(ord.date);
+
+                if (dateFrom && ordDate < new Date(dateFrom)) return;
+                if (dateTo && ordDate > new Date(dateTo + 'T23:59:59')) return;
+
+                if (!clientsMap[phone]) {
+                    clientsMap[phone] = {
+                        name: `${ord.client.lastName} ${ord.client.firstName} ${ord.client.middleName || ''}`,
+                        phone: phone,
+                        ordersCount: 0,
+                        totalSpent: 0,
+                        orders: []
+                    };
+                }
+                clientsMap[phone].ordersCount += 1;
+                clientsMap[phone].totalSpent += ord.total;
+                clientsMap[phone].orders.push(ord);
+            });
+
+            const clientsList = Object.values(clientsMap);
+
+            if (clientsList.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">Клієнтів за обраний період не знайдено.</p>`;
+                return;
+            }
+
+            container.innerHTML = clientsList.map(c => `
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-user text-amber-500 mr-1.5"></i> ${c.name}</h4>
+                            <p class="text-xs text-slate-500"><i class="fa-solid fa-phone text-slate-400 mr-1"></i> ${c.phone}</p>
+                        </div>
+                        <div class="flex items-center space-x-4 text-xs font-bold">
+                            <span class="bg-white px-3 py-1.5 rounded-xl border border-slate-200">Замовлень: ${c.ordersCount}</span>
+                            <span class="bg-amber-100 text-amber-900 px-3 py-1.5 rounded-xl">Сума: ${c.totalSpent} грн</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Історія замовлень клієнта:</span>
+                        ${c.orders.map(o => `
+                            <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                                <div>
+                                    <span class="font-bold text-slate-800">#${o.id}</span>
+                                    <span class="text-slate-400 ml-2">${new Date(o.date).toLocaleDateString()}</span>
+                                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md ml-2">${o.status}</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <span class="font-extrabold text-amber-600">${o.total} грн</span>
+                                    <button onclick="openOrderDetail('${o.id}')" class="text-slate-700 hover:text-amber-600 font-bold"><i class="fa-solid fa-file-invoice"></i></button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSupplierSelect() {
+            const select = document.getElementById('pSupplierSelect');
+            if(select) select.innerHTML = suppliers.map(s => `<option value="${s}">${s}</option>`).join('');
+        }
+
+        function addNewSupplier() {
+            const input = document.getElementById('newSupplierInput');
+            const val = input.value.trim();
+            if (val && !suppliers.includes(val)) {
+                suppliers.push(val);
+                localStorage.setItem('denopt_suppliers', JSON.stringify(suppliers));
+                renderSupplierSelect();
+                document.getElementById('pSupplierSelect').value = val;
+                input.value = '';
+            }
+        }
+
+        function renderSizeGrids() {
+            const lGrid = document.getElementById('sizesLetterGrid');
+            const nGrid = document.getElementById('sizesNumericGrid');
+            const sGrid = document.getElementById('sizesShoesGrid');
+            if (!lGrid) return;
+
+            lGrid.innerHTML = SIZES_LETTER.map(s => `
+                <button type="button" onclick="toggleSize('${s}')" id="size-btn-${s}" class="size-toggle-btn bg-white border border-slate-200 hover:border-amber-500 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all">${s}</button>
+            `).join('');
+
+            nGrid.innerHTML = SIZES_NUMERIC.map(s => `
+                <button type="button" onclick="toggleSize('${s}')" id="size-btn-${s}" class="size-toggle-btn bg-white border border-slate-200 hover:border-amber-500 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all">${s}</button>
+            `).join('');
+
+            sGrid.innerHTML = SIZES_SHOES.map(s => `
+                <button type="button" onclick="toggleSize('${s}')" id="size-btn-${s}" class="size-toggle-btn bg-white border border-slate-200 hover:border-amber-500 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all">${s}</button>
+            `).join('');
+        }
+
+        function toggleSize(size) {
+            const idx = activeSizes.indexOf(size);
+            if (idx > -1) {
+                activeSizes.splice(idx, 1);
+            } else {
+                activeSizes.push(size);
+            }
+            updateSizesUI();
+        }
+
+        function updateSizesUI() {
+            document.querySelectorAll('.size-toggle-btn').forEach(btn => {
+                const s = btn.textContent;
+                if (activeSizes.includes(s)) {
+                    btn.className = "size-toggle-btn bg-slate-900 text-white border border-slate-900 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm";
+                } else {
+                    btn.className = "size-toggle-btn bg-white border border-slate-200 hover:border-amber-500 text-slate-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all";
+                }
+            });
+        }
+
+        function handleColorAutocomplete(val) {
+            const sug = document.getElementById('colorSuggestions');
+            if (!val || val.length < 1) {
+                sug.classList.add('hidden');
+                return;
+            }
+            const filtered = COLOR_DATABASE.filter(c => c.toLowerCase().includes(val.toLowerCase()) && !activeColors.includes(c));
+            if (filtered.length === 0) {
+                sug.classList.add('hidden');
+                return;
+            }
+            sug.innerHTML = filtered.map(c => `
+                <div onclick="selectColorSuggestion('${c}')" class="px-3 py-2 text-xs font-medium text-slate-700 hover:bg-amber-50 cursor-pointer">${c}</div>
+            `).join('');
+            sug.classList.remove('hidden');
+        }
+
+        function selectColorSuggestion(color) {
+            if (!activeColors.includes(color)) {
+                activeColors.push(color);
+                renderColorsTags();
+            }
+            document.getElementById('newColorInput').value = '';
+            document.getElementById('colorSuggestions').classList.add('hidden');
+        }
+
+        function addColor() {
+            const input = document.getElementById('newColorInput');
+            const val = input.value.trim();
+            if (val && !activeColors.includes(val)) {
+                activeColors.push(val);
+                renderColorsTags();
+                input.value = '';
+            }
+            document.getElementById('colorSuggestions').classList.add('hidden');
+        }
+
+        function removeColor(color) {
+            activeColors = activeColors.filter(c => c !== color);
+            renderColorsTags();
+        }
+
+        function renderColorsTags() {
+            const container = document.getElementById('colorsTagsContainer');
+            if (!container) return;
+            if (activeColors.length === 0) {
+                container.innerHTML = `<span class="text-xs text-slate-400 italic">Кольори не додано...</span>`;
+                return;
+            }
+            container.innerHTML = activeColors.map(c => `
+                <span class="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-xl flex items-center space-x-1.5">
+                    <span>${c}</span>
+                    <button type="button" onclick="removeColor('${c}')" class="text-amber-700 hover:text-rose-600"><i class="fa-solid fa-xmark"></i></button>
+                </span>
+            `).join('');
+        }
+
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImages.push(e.target.result);
+                    renderImagePreviews();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderImagePreviews() {
+            const container = document.getElementById('imagePreviewsContainer');
+            if (!container) return;
+            container.innerHTML = uploadedImages.map((img, idx) => `
+                <div class="relative h-16 bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
+                    <img src="${img}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removeUploadedImage(${idx})" class="absolute top-1 right-1 w-5 h-5 bg-rose-600 text-white rounded-full flex items-center justify-center text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function removeUploadedImage(idx) {
+            uploadedImages.splice(idx, 1);
+            renderImagePreviews();
+        }
+
+        function openProductModal(id = null) {
+            document.getElementById('productForm').reset();
+            activeColors = [];
+            activeSizes = [];
+            uploadedImages = [];
+            renderColorsTags();
+            updateSizesUI();
+            renderImagePreviews();
+
+            if (id) {
+                document.getElementById('productModalTitle').textContent = 'Редагувати товар';
+                const p = products.find(item => item.id === id);
+                if (p) {
+                    document.getElementById('productId').value = p.id;
+                    document.getElementById('pSupplierSelect').value = p.supplier || suppliers[0];
+                    document.getElementById('pTitle').value = p.title;
+                    document.getElementById('pCategory').value = p.category;
+                    document.getElementById('pDescription').value = p.description;
+                    document.getElementById('pPricePiece').value = p.pricePiece;
+                    document.getElementById('pPiecesPerPack').value = p.piecesPerPack;
+                    document.getElementById('pPricePack').value = p.pricePack;
+                    activeColors = [...(p.colors || [])];
+                    activeSizes = [...(p.sizes || [])];
+                    uploadedImages = [...(p.images || [])];
+                    renderColorsTags();
+                    updateSizesUI();
+                    renderImagePreviews();
+                }
+            } else {
+                document.getElementById('productModalTitle').textContent = 'Додати новий товар';
+                document.getElementById('productId').value = '';
+            }
+
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        function parseWithAI() {
+            const text = document.getElementById('aiRawText').value.trim();
+            if (!text) {
+                alert('Введіть текст для ШІ-розпізнавання!');
+                return;
+            }
+
+            document.getElementById('pTitle').value = text.split('\n')[0].substring(0, 80) || "Товар з розпродажу";
+            document.getElementById('pDescription').value = text;
+
+            const numbers = text.match(/\d+/g);
+            if (numbers && numbers.length > 0) {
+                document.getElementById('pPricePiece').value = numbers[0];
+                document.getElementById('pPiecesPerPack').value = numbers[1] || '5';
+                document.getElementById('pPricePack').value = parseInt(numbers[0]) * (parseInt(numbers[1]) || 5);
+            }
+
+            COLOR_DATABASE.forEach(c => {
+                if (text.toLowerCase().includes(c.toLowerCase()) && !activeColors.includes(c)) {
+                    activeColors.push(c);
+                }
+            });
+            renderColorsTags();
+            alert('ШІ успішно розпізнав дані з тексту!');
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('productId').value;
+            const supplier = document.getElementById('pSupplierSelect').value;
+            const title = document.getElementById('pTitle').value;
+            const category = document.getElementById('pCategory').value;
+            const description = document.getElementById('pDescription').value;
+            const pricePiece = parseFloat(document.getElementById('pPricePiece').value);
+            const piecesPerPack = parseInt(document.getElementById('pPiecesPerPack').value);
+            const pricePack = parseFloat(document.getElementById('pPricePack').value);
+
+            if (uploadedImages.length === 0) {
+                uploadedImages = ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80"];
+            }
+
+            const productData = {
+                id: id ? parseInt(id) : Date.now(),
+                supplier,
+                title,
+                category,
+                description,
+                pricePiece,
+                piecesPerPack,
+                pricePack,
+                colors: [...activeColors],
+                sizes: [...activeSizes],
+                images: [...uploadedImages]
+            };
+
+            if (id) {
+                const index = products.findIndex(p => p.id === parseInt(id));
+                if (index > -1) {
+                    products[index] = productData;
+                } else {
+                    products.unshift(productData);
+                }
+            } else {
+                products.unshift(productData);
+            }
+
+            localStorage.setItem('denopt_products', JSON.stringify(products));
+            closeProductModal();
+            renderProducts();
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Ви дійсно хочете видалити цей товар?')) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('denopt_products', JSON.stringify(products));
+                renderProducts();
+            }
+        }
+    </script>
+</body>
+</html>
