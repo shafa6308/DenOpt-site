@@ -3,149 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEN OPT — Оптовий інтернет-каталог</title>
+    <title>DEN OPT — Оптовий каталог</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        body { background-color: #f4f6f9; color: #333; }
-        header { background: #1a252f; color: #fff; padding: 20px; text-align: center; }
-        header h1 { font-size: 28px; margin-bottom: 5px; letter-spacing: 1px; }
-        header p { font-size: 14px; color: #bdc3c7; }
-        .contacts-bar { background: #2c3e50; color: #fff; text-align: center; padding: 12px; font-size: 14px; }
-        .contacts-bar a { color: #2ecc71; text-decoration: none; font-weight: bold; margin: 0 6px; }
-        .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 80px; }
+        header { background: #1a252f; color: #fff; padding: 15px; text-align: center; position: relative; }
+        header h1 { font-size: 24px; }
+        .admin-link { position: absolute; right: 15px; top: 18px; color: #bdc3c7; text-decoration: none; font-size: 13px; cursor: pointer; }
         
-        /* Категорії */
-        .categories { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
-        .cat-btn { background: #fff; border: 1px solid #ddd; padding: 10px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-weight: bold; font-size: 14px; transition: 0.2s; }
-        .cat-btn.active, .cat-btn:hover { background: #3498db; color: #fff; border-color: #3498db; }
+        .container { max-width: 1100px; margin: 15px auto; padding: 0 10px; }
+        .categories { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
+        .cat-btn { background: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-weight: bold; font-size: 13px; }
+        .cat-btn.active { background: #3498db; color: #fff; border-color: #3498db; }
 
-        /* Сітка товарів */
-        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .product-card { background: #fff; border-radius: 8px; border: 1px solid #e1e8ed; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .product-img { width: 100%; height: 180px; background: #e9ecef; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 14px; font-weight: bold; }
-        .product-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
-        .product-title { font-weight: bold; margin-bottom: 8px; font-size: 15px; color: #2c3e50; }
-        .product-price { font-size: 17px; color: #e74c3c; font-weight: bold; margin-bottom: 12px; }
-        
-        .btn-group { display: flex; gap: 8px; margin-top: auto; }
-        .btn-order { flex: 1; padding: 9px 5px; border-radius: 5px; cursor: pointer; font-weight: bold; text-align: center; text-decoration: none; font-size: 13px; color: #fff; }
-        .btn-viber { background: #7360f2; }
-        .btn-viber:hover { background: #5c47e0; }
-        .btn-telegram { background: #2980b9; }
-        .btn-telegram:hover { background: #2471a3; }
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+        .product-card { background: #fff; border-radius: 8px; border: 1px solid #e1e8ed; overflow: hidden; display: flex; flex-direction: column; padding: 10px; }
+        .product-img { width: 100%; height: 130px; background: #eee; display: flex; align-items: center; justify-content: center; color: #777; font-size: 12px; border-radius: 6px; margin-bottom: 8px; }
+        .product-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+        .product-price { color: #e74c3c; font-weight: bold; font-size: 15px; margin-bottom: 10px; }
 
-        footer { text-align: center; padding: 25px; color: #7f8c8d; font-size: 13px; margin-top: 40px; border-top: 1px solid #ddd; }
+        /* Кнопки + - та Кошик */
+        .counter-control { display: flex; align-items: center; justify-content: space-between; background: #f0f3f6; border-radius: 6px; padding: 4px; }
+        .btn-qty { width: 28px; height: 28px; background: #3498db; color: #fff; border: none; border-radius: 4px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .qty-val { font-weight: bold; font-size: 14px; }
+        .btn-add { width: 100%; background: #27ae60; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; margin-top: 8px; cursor: pointer; font-size: 13px; }
+
+        /* Панель Кошика внизу */
+        .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); }
+        .cart-btn-send { background: #27ae60; color: #fff; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
+        /* Адмінка Модальне вікно */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; padding: 15px; }
+        .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 3px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     </style>
 </head>
 <body>
 
     <header>
         <h1>DEN OPT</h1>
-        <p>Прямий оптовий постачальник одягу та взуття</p>
+        <span class="admin-link" onclick="openAdmin()">⚙️ Адмінка</span>
     </header>
 
-    <div class="contacts-bar">
-        📞 Viber: <a href="viber://chat?number=%2B380972424666">097-24-24-666</a> | 
-        💬 Telegram: <a href="https://t.me/0680516308" target="_blank">068-051-63-08</a>
-    </div>
-
     <div class="container">
-        <!-- Кнопки фільтрації категорій -->
         <div class="categories">
-            <button class="cat-btn active" onclick="filterCategory('all', this)">Всі товари</button>
-            <button class="cat-btn" onclick="filterCategory('women', this)">Жіночий одяг</button>
-            <button class="cat-btn" onclick="filterCategory('men', this)">Чоловічий одяг</button>
-            <button class="cat-btn" onclick="filterCategory('shoes', this)">Взуття</button>
-            <button class="cat-btn" onclick="filterCategory('accessories', this)">Аксесуари</button>
-            <button class="cat-btn" onclick="filterCategory('appliances', this)">Дрібна техніка</button>
+            <button class="cat-btn active" onclick="filterCat('all', this)">Всі товари</button>
+            <button class="cat-btn" onclick="filterCat('women', this)">Жіночий одяг</button>
+            <button class="cat-btn" onclick="filterCat('men', this)">Чоловічий одяг</button>
+            <button class="cat-btn" onclick="filterCat('shoes', this)">Взуття</button>
+            <button class="cat-btn" onclick="filterCat('accessories', this)">Аксесуари</button>
+            <button class="cat-btn" onclick="filterCat('appliances', this)">Дрібна техніка</button>
         </div>
 
-        <!-- Каталог товарів -->
-        <div class="catalog-grid" id="catalog">
-            
-            <div class="product-card" data-category="women">
-                <div class="product-img">Жіночий одяг</div>
-                <div class="product-info">
-                    <div class="product-title">Жіночий спортивний костюм</div>
-                    <div class="product-price">Уточнюйте опт</div>
-                    <div class="btn-group">
-                        <a href="viber://chat?number=%2B380972424666" class="btn-order btn-viber">Viber</a>
-                        <a href="https://t.me/0680516308" target="_blank" class="btn-order btn-telegram">Telegram</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="product-card" data-category="men">
-                <div class="product-img">Чоловічий одяг</div>
-                <div class="product-info">
-                    <div class="product-title">Чоловічий худі базовий</div>
-                    <div class="product-price">Уточнюйте опт</div>
-                    <div class="btn-group">
-                        <a href="viber://chat?number=%2B380972424666" class="btn-order btn-viber">Viber</a>
-                        <a href="https://t.me/0680516308" target="_blank" class="btn-order btn-telegram">Telegram</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="product-card" data-category="shoes">
-                <div class="product-img">Взуття</div>
-                <div class="product-info">
-                    <div class="product-title">Кросівки демісезонні унісекс</div>
-                    <div class="product-price">Уточнюйте опт</div>
-                    <div class="btn-group">
-                        <a href="viber://chat?number=%2B380972424666" class="btn-order btn-viber">Viber</a>
-                        <a href="https://t.me/0680516308" target="_blank" class="btn-order btn-telegram">Telegram</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="product-card" data-category="accessories">
-                <div class="product-img">Аксесуари</div>
-                <div class="product-info">
-                    <div class="product-title">Сумка шкіряна опт</div>
-                    <div class="product-price">Уточнюйте опт</div>
-                    <div class="btn-group">
-                        <a href="viber://chat?number=%2B380972424666" class="btn-order btn-viber">Viber</a>
-                        <a href="https://t.me/0680516308" target="_blank" class="btn-order btn-telegram">Telegram</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="product-card" data-category="appliances">
-                <div class="product-img">Дрібна техніка</div>
-                <div class="product-info">
-                    <div class="product-title">Портативний блендер</div>
-                    <div class="product-price">Уточнюйте опт</div>
-                    <div class="btn-group">
-                        <a href="viber://chat?number=%2B380972424666" class="btn-order btn-viber">Viber</a>
-                        <a href="https://t.me/0680516308" target="_blank" class="btn-order btn-telegram">Telegram</a>
-                    </div>
-                </div>
-            </div>
-
-        </div>
+        <div class="catalog-grid" id="catalog"></div>
     </div>
 
-    <footer>
-        &copy; 2026 DEN OPT. Усі права захищені.
-    </footer>
+    <!-- Нижня плашка кошика -->
+    <div class="cart-bar">
+        <div>Кошик: <span id="cart-count">0</span> тов. | Сума: <span id="cart-sum">0</span> грн</div>
+        <button class="cart-btn-send" onclick="alert('Замовлення сформовано!')">Оформити</button>
+    </div>
+
+    <!-- Модальне вікно Адмінки -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content">
+            <h3>Управління каталогом</h3>
+            <br>
+            <div class="form-group">
+                <label>Назва товару</label>
+                <input type="text" id="pTitle">
+            </div>
+            <div class="form-group">
+                <label>Ціна (грн)</label>
+                <input type="number" id="pPrice">
+            </div>
+            <div class="form-group">
+                <label>Категорія</label>
+                <select id="pCat">
+                    <option value="women">Жіночий одяг</option>
+                    <option value="men">Чоловічий одяг</option>
+                    <option value="shoes">Взуття</option>
+                    <option value="accessories">Аксесуари</option>
+                    <option value="appliances">Дрібна техніка</option>
+                </select>
+            </div>
+            <button class="btn-add" onclick="addProduct()">Додати товар</button>
+            <button class="btn-add" style="background:#e74c3c; margin-top:5px;" onclick="closeAdmin()">Закрити</button>
+        </div>
+    </div>
 
     <script>
-        function filterCategory(category, button) {
-            // Зміна активної кнопки
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+        // Базові товари за замовчуванням
+        let defaultProducts = [
+            { id: 1, title: "Жіночий костюм", price: 450, cat: "women", qty: 1 },
+            { id: 2, title: "Чоловіче худі", price: 380, cat: "men", qty: 1 },
+            { id: 3, title: "Кросівки", price: 650, cat: "shoes", qty: 1 }
+        ];
 
-            // Фільтрація карток
-            const cards = document.querySelectorAll('.product-card');
-            cards.forEach(card => {
-                if (category === 'all' || card.getAttribute('data-category') === category) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+        let products = JSON.parse(localStorage.getItem('denopt_items')) || defaultProducts;
+        let cartCount = 0;
+        let cartSum = 0;
+
+        function renderCatalog(cat = 'all') {
+            const grid = document.getElementById('catalog');
+            grid.innerHTML = '';
+            
+            products.forEach((p, idx) => {
+                if (cat !== 'all' && p.cat !== cat) return;
+                
+                grid.innerHTML += `
+                    <div class="product-card">
+                        <div class="product-img">Фото</div>
+                        <div class="product-title">${p.title}</div>
+                        <div class="product-price">${p.price} грн</div>
+                        <div class="counter-control">
+                            <button class="btn-qty" onclick="changeQty(${idx}, -1)">-</button>
+                            <span class="qty-val" id="qty-${idx}">${p.qty || 1}</span>
+                            <button class="btn-qty" onclick="changeQty(${idx}, 1)">+</button>
+                        </div>
+                        <button class="btn-add" onclick="addToCart(${idx})">В кошик</button>
+                    </div>
+                `;
             });
         }
+
+        function changeQty(idx, diff) {
+            if (!products[idx].qty) products[idx].qty = 1;
+            products[idx].qty += diff;
+            if (products[idx].qty < 1) products[idx].qty = 1;
+            document.getElementById(`qty-${idx}`).innerText = products[idx].qty;
+        }
+
+        function addToCart(idx) {
+            let q = products[idx].qty || 1;
+            cartCount += q;
+            cartSum += products[idx].price * q;
+            document.getElementById('cart-count').innerText = cartCount;
+            document.getElementById('cart-sum').innerText = cartSum;
+        }
+
+        function filterCat(cat, btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderCatalog(cat);
+        }
+
+        function openAdmin() { document.getElementById('adminModal').style.display = 'flex'; }
+        function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
+
+        function addProduct() {
+            let title = document.getElementById('pTitle').value;
+            let price = Number(document.getElementById('pPrice').value);
+            let cat = document.getElementById('pCat').value;
+
+            if(!title || !price) return alert('Заповніть усі поля!');
+
+            products.push({ id: Date.now(), title, price, cat, qty: 1 });
+            localStorage.setItem('denopt_items', JSON.stringify(products));
+            renderCatalog();
+            closeAdmin();
+        }
+
+        // Початкова вигрузка
+        renderCatalog();
     </script>
 
 </body>
